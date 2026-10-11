@@ -169,7 +169,17 @@ function closeApp(){
   if(location.hash.startsWith('#app=')) history.pushState({},'', location.pathname);
 }
 document.getElementById('backBtn').onclick=()=>history.back();
-frame.onload=()=>{ loader.style.display='none'; };
+frame.addEventListener('load', ()=>{
+  // APK me embedded app ka window.print() Android print framework ko jaye
+  try{
+    const fw = frame.contentWindow;
+    if (window.AndroidPrint && fw && !fw.__printBridged) {
+      fw.__printBridged = true;
+      fw.print = function(){ try{ window.AndroidPrint.print(); }catch(e){} };
+    }
+  }catch(e){}
+  loader.style.display='none';
+});
 window.addEventListener('popstate',()=>{
   const m=location.hash.match(/^#app=(.+)$/);
   if(m) openApp(m[1]); else if(current) closeApp();
