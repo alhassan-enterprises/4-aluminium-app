@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>4 Aluminium App</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0b1b33">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  :root{
+    --navy:#0b1b33; --navy2:#12294f; --gold:#e8b62a; --gold2:#f5cf5e;
+    --card:#13263f; --text:#f2f5fa; --muted:#9fb0c9;
+  }
+  html,body{ height:100%; }
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+    background:radial-gradient(1200px 600px at 50% -10%, #1a3a6b 0%, var(--navy) 55%) fixed, var(--navy);
+    color:var(--text); min-height:100%;
+  }
+  /* ---------- Dashboard ---------- */
+  #dashboard{ max-width:560px; margin:0 auto; padding:28px 18px 40px; min-height:100%; display:flex; flex-direction:column; }
+  header.top{ text-align:center; padding:18px 0 6px; }
+  .app-logo{ width:96px; height:96px; border-radius:24px; box-shadow:0 8px 28px rgba(232,182,42,.35); border:2px solid rgba(232,182,42,.55); }
+  h1{ font-size:30px; margin-top:14px; letter-spacing:.5px; }
+  h1 .four{ color:var(--gold); }
+  .creator{ margin-top:6px; font-size:14px; color:var(--gold2); letter-spacing:1.5px; text-transform:uppercase; }
+  .creator::before,.creator::after{ content:""; display:inline-block; width:34px; height:1px; background:var(--gold); vertical-align:middle; margin:0 10px; opacity:.7; }
+  .tagline{ margin-top:10px; font-size:13px; color:var(--muted); }
+  .grid{ display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:26px; }
+  .card{
+    background:linear-gradient(160deg, var(--card), #0d1c36);
+    border:1px solid rgba(232,182,42,.28); border-radius:18px;
+    padding:20px 14px 16px; text-align:center; cursor:pointer;
+    transition:transform .12s ease, box-shadow .12s ease;
+    position:relative; overflow:hidden;
+  }
+  .card:active{ transform:scale(.96); }
+  .card::after{ content:""; position:absolute; inset:0; background:linear-gradient(120deg, transparent 30%, rgba(232,182,42,.08) 50%, transparent 70%); pointer-events:none; }
+  .card .ver{
+    position:absolute; top:10px; right:10px; font-size:11px; font-weight:700;
+    background:var(--gold); color:#0b1b33; border-radius:20px; padding:2px 9px;
+  }
+  .card svg{ width:52px; height:52px; }
+  .card h2{ font-size:15px; margin-top:10px; line-height:1.3; }
+  .card p{ font-size:11.5px; color:var(--muted); margin-top:6px; line-height:1.45; min-height:34px; }
+  .card .open{
+    display:inline-block; margin-top:10px; font-size:12.5px; font-weight:700;
+    color:#0b1b33; background:var(--gold); border-radius:20px; padding:7px 20px;
+  }
+  footer{ margin-top:auto; padding-top:30px; text-align:center; font-size:11.5px; color:var(--muted); }
+  footer b{ color:var(--gold2); font-weight:600; }
+  /* ---------- App viewer ---------- */
+  #viewer{ position:fixed; inset:0; background:#fff; z-index:50; display:flex; flex-direction:column; }
+  #viewer[hidden]{ display:none; }
+  .viewer-bar{
+    display:flex; align-items:center; gap:10px;
+    background:var(--navy); color:#fff; padding:10px 12px;
+    padding-top:calc(10px + env(safe-area-inset-top));
+    box-shadow:0 2px 10px rgba(0,0,0,.3); z-index:2;
+  }
+  #backBtn{
+    border:1px solid rgba(232,182,42,.6); background:transparent; color:var(--gold);
+    font-size:16px; font-weight:700; border-radius:12px; padding:8px 14px; cursor:pointer;
+  }
+  #backBtn:active{ background:rgba(232,182,42,.15); }
+  #viewerTitle{ font-size:16px; font-weight:600; }
+  #viewerTitle .vtag{ font-size:11px; background:var(--gold); color:#0b1b33; border-radius:10px; padding:1px 8px; margin-left:6px; vertical-align:middle; }
+  #appFrame{ flex:1; border:0; width:100%; background:#fff; }
+  .loading{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    background:var(--navy); color:var(--gold); font-size:15px; z-index:1;
+  }
+  .spinner{ width:38px; height:38px; border:4px solid rgba(232,182,42,.25); border-top-color:var(--gold); border-radius:50%; animation:spin 0.9s linear infinite; margin:0 auto 12px; }
+  @keyframes spin{ to{ transform:rotate(360deg);} }
+</style>
+</head>
+<body>
+
+<div id="dashboard">
+  <header class="top">
+    <img class="app-logo" src="icon-192.png" alt="4 Aluminium App">
+    <h1><span class="four">4</span> Aluminium App</h1>
+    <div class="creator">Creation by Sufyan Dhillon</div>
+    <div class="tagline">Apke 4 professional aluminium apps — ek hi jagah</div>
+  </header>
+
+  <div class="grid" id="appGrid"></div>
+
+  <footer>
+    <b>4 Aluminium App</b> v1.0 &nbsp;•&nbsp; Creation by <b>Sufyan Dhillon</b><br>
+    Har app alag se bhi apne purane link par chalti rahegi
+  </footer>
+</div>
+
+<div id="viewer" hidden>
+  <div class="viewer-bar">
+    <button id="backBtn" aria-label="Back">&#8592; Back</button>
+    <span id="viewerTitle"></span>
+  </div>
+  <div style="position:relative;flex:1;display:flex;">
+    <div class="loading" id="frameLoader"><div><div class="spinner"></div>Loading…</div></div>
+    <iframe id="appFrame" title="App" allow="camera;microphone"></iframe>
+  </div>
+</div>
+
+<script>
+const APPS = [
+  {
+    slug:"windows-door", name:"Window & Door Calculator", ver:"v3",
+    desc:"Window/door size se complete material bill",
+    url:"https://alhassan-enterprises.github.io/aluminium-windows-door-calculator/",
+    icon:'<svg viewBox="0 0 64 64" fill="none"><rect x="8" y="10" width="48" height="44" rx="3" stroke="#e8b62a" stroke-width="4"/><line x1="32" y1="10" x2="32" y2="54" stroke="#e8b62a" stroke-width="4"/><line x1="8" y1="32" x2="56" y2="32" stroke="#e8b62a" stroke-width="4"/><rect x="14" y="16" width="12" height="10" fill="#9fd0ff" opacity=".7"/><rect x="38" y="16" width="12" height="10" fill="#9fd0ff" opacity=".7"/><rect x="14" y="38" width="12" height="10" fill="#9fd0ff" opacity=".7"/><rect x="38" y="38" width="12" height="10" fill="#9fd0ff" opacity=".7"/></svg>'
+  },
+  {
+    slug:"aluminium-bill", name:"Aluminium Bill", ver:"v4",
+    desc:"Quotation bill, section search, discount chips",
+    url:"https://alhassan-enterprises.github.io/aluminium-quote-summary/",
+    icon:'<svg viewBox="0 0 64 64" fill="none"><path d="M16 6h32v52l-8-5-8 5-8-5-8 5V6z" stroke="#e8b62a" stroke-width="4" stroke-linejoin="round"/><line x1="24" y1="20" x2="40" y2="20" stroke="#e8b62a" stroke-width="4" stroke-linecap="round"/><line x1="24" y1="30" x2="40" y2="30" stroke="#e8b62a" stroke-width="4" stroke-linecap="round"/><line x1="24" y1="40" x2="34" y2="40" stroke="#e8b62a" stroke-width="4" stroke-linecap="round"/></svg>'
+  },
+  {
+    slug:"glass-work", name:"Glass Work Pro", ver:"v2",
+    desc:"Glass CAD design, invoice aur quotation",
+    url:"https://alhassan-enterprises.github.io/professional-glass-work/",
+    icon:'<svg viewBox="0 0 64 64" fill="none"><rect x="18" y="6" width="28" height="52" rx="4" transform="rotate(12 32 32)" stroke="#e8b62a" stroke-width="4"/><line x1="26" y1="14" x2="38" y2="50" stroke="#9fd0ff" stroke-width="3" opacity=".8"/><line x1="32" y1="12" x2="44" y2="48" stroke="#9fd0ff" stroke-width="3" opacity=".5"/></svg>'
+  },
+  {
+    slug:"material-advanced", name:"Material Calculator Advanced", ver:"v2",
+    desc:"Advanced material rate calculation",
+    url:"https://alhassan-enterprises.github.io/material-calculator-advanced/",
+    icon:'<svg viewBox="0 0 64 64" fill="none"><rect x="12" y="6" width="40" height="52" rx="5" stroke="#e8b62a" stroke-width="4"/><rect x="19" y="13" width="26" height="10" rx="2" fill="#9fd0ff" opacity=".55"/><g fill="#e8b62a"><circle cx="22" cy="34" r="3"/><circle cx="32" cy="34" r="3"/><circle cx="42" cy="34" r="3"/><circle cx="22" cy="43" r="3"/><circle cx="32" cy="43" r="3"/><circle cx="42" cy="43" r="3"/><circle cx="22" cy="52" r="3"/><circle cx="32" cy="52" r="3"/><circle cx="42" cy="52" r="3"/></g></svg>'
+  }
+];
+
+const grid = document.getElementById('appGrid');
+APPS.forEach(a=>{
+  const d=document.createElement('div');
+  d.className='card';
+  d.innerHTML='<span class="ver">'+a.ver+'</span>'+a.icon+'<h2>'+a.name+'</h2><p>'+a.desc+'</p><span class="open">Open</span>';
+  d.onclick=()=>openApp(a.slug);
+  grid.appendChild(d);
+});
+
+const viewer=document.getElementById('viewer'),
+      frame=document.getElementById('appFrame'),
+      vTitle=document.getElementById('viewerTitle'),
+      loader=document.getElementById('frameLoader');
+let current=null;
+
+function openApp(slug){
+  const a=APPS.find(x=>x.slug===slug); if(!a) return;
+  current=a;
+  vTitle.innerHTML=a.name+'<span class="vtag">'+a.ver+'</span>';
+  loader.style.display='flex';
+  viewer.hidden=false;
+  document.getElementById('dashboard').style.display='none';
+  frame.src=a.url;
+  if(location.hash!=='#app='+slug) history.pushState({app:slug},'', '#app='+slug);
+}
+function closeApp(){
+  viewer.hidden=true;
+  document.getElementById('dashboard').style.display='flex';
+  frame.src='about:blank'; current=null;
+  if(location.hash.startsWith('#app=')) history.pushState({},'', location.pathname);
+}
+document.getElementById('backBtn').onclick=()=>history.back();
+frame.onload=()=>{ loader.style.display='none'; };
+window.addEventListener('popstate',()=>{
+  const m=location.hash.match(/^#app=(.+)$/);
+  if(m) openApp(m[1]); else if(current) closeApp();
+});
+// Deep link support
+(function(){
+  const m=location.hash.match(/^#app=(.+)$/);
+  if(m) openApp(m[1]);
+})();
+// PWA service worker
+if('serviceWorker' in navigator){ navigator.serviceWorker.register('sw.js').catch(()=>{}); }
+</script>
+</body>
+</html>
